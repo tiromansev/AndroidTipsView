@@ -22,6 +22,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import net.fredericosilva.showtipsview.R;
 
 /**
@@ -29,447 +30,445 @@ import net.fredericosilva.showtipsview.R;
  * @date Oct 31, 2014
  */
 public class ShowTipsView extends RelativeLayout {
-	private Point showhintPoints;
-	private int radius = 0;
+    private Point showhintPoints;
+    private int radius = 0;
 
-	private String title, description, button_text;
-	private boolean custom, displayOneTime;
-	private int displayOneTimeID = 0;
-	private int delay = 0;
+    private String title, description, button_text;
+    private boolean custom, displayOneTime;
+    private int displayOneTimeID = 0;
+    private int delay = 0;
 
-	private ShowTipsViewInterface callback;
+    private ShowTipsViewInterface callback;
 
-	private View targetView;
-	private int screenX, screenY;
+    private View targetView;
+    private int screenX, screenY;
 
-	private int title_color, description_color, background_color, circleColor, buttonColor, buttonTextColor;
-	private Drawable closeButtonDrawableBG;
+    private int title_color, description_color, background_color, circleColor, buttonColor, buttonTextColor;
+    private Drawable closeButtonDrawableBG;
 
-	private int background_alpha = 220;
+    private int background_alpha = 220;
 
-	private StoreUtils showTipsStore;
-	
-	private Bitmap bitmap;
-	private Canvas temp;
-	private Paint paint;
-	private Paint bitmapPaint;
-	private Paint circleline;
-	private Paint transparentPaint;
-	private PorterDuffXfermode porterDuffXfermode;
+    private StoreUtils showTipsStore;
 
-	public ShowTipsView(Context context, AttributeSet attrs, int defStyleAttr) {
-		super(context, attrs, defStyleAttr);
-		init();
-	}
+    private Bitmap bitmap;
+    private Canvas temp;
+    private Paint paint;
+    private Paint bitmapPaint;
+    private Paint circleline;
+    private Paint transparentPaint;
+    private PorterDuffXfermode porterDuffXfermode;
 
-	public ShowTipsView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		init();
-	}
+    public ShowTipsView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
+    }
 
-	public ShowTipsView(Context context) {
-		super(context);
-		init();
-	}
+    public ShowTipsView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
 
-	private void init() {
-		this.setVisibility(View.GONE);
-		this.setBackgroundColor(Color.TRANSPARENT);
+    public ShowTipsView(Context context) {
+        super(context);
+        init();
+    }
 
-		this.setOnClickListener(new OnClickListener() {
+    private void init() {
+        this.setVisibility(View.GONE);
+        this.setBackgroundColor(Color.TRANSPARENT);
 
-			@Override
-			public void onClick(View v) {
-				// DO NOTHING
-				// HACK TO BLOCK CLICKS
+        this.setOnClickListener(new OnClickListener() {
 
-			}
-		});
+            @Override
+            public void onClick(View v) {
+                // DO NOTHING
+                // HACK TO BLOCK CLICKS
 
-		showTipsStore = new StoreUtils(getContext());
-		
-		paint = new Paint();
-		bitmapPaint = new Paint();
-		circleline = new Paint();
-		transparentPaint = new Paint();
-		porterDuffXfermode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
-	}
+            }
+        });
 
-	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		super.onSizeChanged(w, h, oldw, oldh);
-		// Get screen dimensions
-		screenX = w;
-		screenY = h;
-	}
+        showTipsStore = new StoreUtils(getContext());
 
-	@Override
-	protected void onDraw(Canvas canvas) {
-		super.onDraw(canvas);
+        paint = new Paint();
+        bitmapPaint = new Paint();
+        circleline = new Paint();
+        transparentPaint = new Paint();
+        porterDuffXfermode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
+    }
 
-		/*
-		 * Draw circle and transparency background
-		 */
-		
-		/* 
-		 * Since bitmap needs the canva's size, it wont be load at init() 
-		 * To prevent the DrawAllocation issue on low memory devices, the bitmap will be instantiate only when its null
-		 */
-		if (bitmap == null) {
-			bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.ARGB_8888);
-			temp = new Canvas(bitmap);
-		}
-		
-		if (background_color != 0)
-			paint.setColor(background_color);
-		else
-			paint.setColor(Color.parseColor("#000000"));
-		
-		paint.setAlpha(background_alpha);
-		temp.drawRect(0, 0, temp.getWidth(), temp.getHeight(), paint);
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        // Get screen dimensions
+        screenX = w;
+        screenY = h;
+    }
 
-		transparentPaint.setColor(getResources().getColor(android.R.color.transparent));
-		transparentPaint.setXfermode(porterDuffXfermode);
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
 
-		int x = showhintPoints.x;
-		int y = showhintPoints.y;
-		temp.drawCircle(x, y, radius, transparentPaint);
+        /*
+         * Draw circle and transparency background
+         */
 
-		canvas.drawBitmap(bitmap, 0, 0, bitmapPaint);
+        /*
+         * Since bitmap needs the canva's size, it wont be load at init()
+         * To prevent the DrawAllocation issue on low memory devices, the bitmap will be instantiate only when its null
+         */
+        if (bitmap == null) {
+            bitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.ARGB_8888);
+            temp = new Canvas(bitmap);
+        }
 
-		circleline.setStyle(Paint.Style.STROKE);
-		if (circleColor != 0)
-			circleline.setColor(circleColor);
-		else
-			circleline.setColor(Color.RED);
-		
-		circleline.setAntiAlias(true);
-		circleline.setStrokeWidth(3);
-		canvas.drawCircle(x, y, radius, circleline);
-	}
+        if (background_color != 0)
+            paint.setColor(background_color);
+        else
+            paint.setColor(Color.parseColor("#000000"));
 
-	boolean isMeasured;
+        paint.setAlpha(background_alpha);
+        temp.drawRect(0, 0, temp.getWidth(), temp.getHeight(), paint);
 
-	public void show(final Activity activity) {
-		if (isDisplayOneTime() && showTipsStore.hasShown(getDisplayOneTimeID())) {
-			setVisibility(View.GONE);
-			((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(ShowTipsView.this);
-			return;
-		} else {
-			if (isDisplayOneTime())
-				showTipsStore.storeShownId(getDisplayOneTimeID());
-		}
+        transparentPaint.setColor(getResources().getColor(android.R.color.transparent));
+        transparentPaint.setXfermode(porterDuffXfermode);
 
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				if (targetView != null) {
-					((ViewGroup) activity.getWindow().getDecorView()).addView(ShowTipsView.this);
+        int x = showhintPoints.x;
+        int y = showhintPoints.y;
+        temp.drawCircle(x, y, radius, transparentPaint);
 
-					ShowTipsView.this.setVisibility(View.VISIBLE);
-					Animation fadeInAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
-					ShowTipsView.this.startAnimation(fadeInAnimation);
+        canvas.drawBitmap(bitmap, 0, 0, bitmapPaint);
 
-					final ViewTreeObserver observer = targetView.getViewTreeObserver();
-					observer.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-						@Override
-						public void onGlobalLayout() {
+        circleline.setStyle(Paint.Style.STROKE);
+        if (circleColor != 0)
+            circleline.setColor(circleColor);
+        else
+            circleline.setColor(Color.RED);
 
-							if (isMeasured)
-								return;
+        circleline.setAntiAlias(true);
+        circleline.setStrokeWidth(3);
+        canvas.drawCircle(x, y, radius, circleline);
+    }
 
-							if (targetView.getHeight() > 0 && targetView.getWidth() > 0) {
-								isMeasured = true;
+    boolean isMeasured;
 
-							}
+    public void show(final Activity activity) {
+        if (isDisplayOneTime() && showTipsStore.hasShown(getDisplayOneTimeID())) {
+            setVisibility(View.GONE);
+            ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(ShowTipsView.this);
+            return;
+        } else {
+            if (isDisplayOneTime())
+                showTipsStore.storeShownId(getDisplayOneTimeID());
+        }
 
-							if (custom == false) {
-								int[] location = new int[2];
-								targetView.getLocationInWindow(location);
-								int x = location[0] + targetView.getWidth() / 2;
-								int y = location[1] + targetView.getHeight() / 2;
-								// Log.d("FRED", "X:" + x + " Y: " + y);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (targetView != null) {
+                    ((ViewGroup) activity.getWindow().getDecorView()).addView(ShowTipsView.this);
 
-								Point p = new Point(x, y);
+                    ShowTipsView.this.setVisibility(View.VISIBLE);
+                    Animation fadeInAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
+                    ShowTipsView.this.startAnimation(fadeInAnimation);
 
-								showhintPoints = p;
-								radius = targetView.getWidth() / 2;
-							} else {
-								int[] location = new int[2];
-								targetView.getLocationInWindow(location);
-								int x = location[0] + showhintPoints.x;
-								int y = location[1] + showhintPoints.y;
-								// Log.d("FRED", "X:" + x + " Y: " + y);
+                    final ViewTreeObserver observer = targetView.getViewTreeObserver();
+                    observer.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
 
-								Point p = new Point(x, y);
+                            if (isMeasured)
+                                return;
 
-								showhintPoints = p;
+                            if (targetView.getHeight() > 0 && targetView.getWidth() > 0) {
+                                isMeasured = true;
 
-							}
+                            }
 
-							invalidate();
+                            if (custom == false) {
+                                int[] location = new int[2];
+                                targetView.getLocationInWindow(location);
+                                int x = location[0] + targetView.getWidth() / 2;
+                                int y = location[1] + targetView.getHeight() / 2;
+                                // Log.d("FRED", "X:" + x + " Y: " + y);
 
-							createViews();
+                                Point p = new Point(x, y);
 
-						}
-					});
-				}
-			}
-		}, getDelay());
-	}
+                                showhintPoints = p;
+                                radius = targetView.getWidth() / 2;
+                            } else {
+                                int[] location = new int[2];
+                                targetView.getLocationInWindow(location);
+                                int x = location[0] + showhintPoints.x;
+                                int y = location[1] + showhintPoints.y;
+                                // Log.d("FRED", "X:" + x + " Y: " + y);
 
-	/*
-	 * Create text views and close button
-	 */
-	private void createViews() {
-		this.removeAllViews();
+                                Point p = new Point(x, y);
 
-		RelativeLayout texts_layout = new RelativeLayout(getContext());
+                                showhintPoints = p;
 
-		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		/*
-		 * Title
-		 */
-		TextView textTitle = new TextView(getContext());
-		textTitle.setText(getTitle());
-		if (getTitle_color() != 0)
-			textTitle.setTextColor(getTitle_color());
-		else
-			textTitle.setTextColor(getResources().getColor(android.R.color.holo_blue_bright));
-		textTitle.setId(123);
-		textTitle.setTextSize(26);
+                            }
 
-		// Add title to this view
-		texts_layout.addView(textTitle);
+                            invalidate();
 
-		/*
-		 * Description
-		 */
-		TextView text = new TextView(getContext());
-		text.setText(getDescription());
-		if (getDescription_color() != 0)
-			text.setTextColor(getDescription_color());
-		else
-			text.setTextColor(Color.WHITE);
-		text.setTextSize(17);
-		params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		params.addRule(RelativeLayout.BELOW, 123);
-		text.setLayoutParams(params);
+                            createViews();
+                        }
+                    });
+                }
+            }
+        }, getDelay());
+    }
 
-		texts_layout.addView(text);
+    /*
+     * Create text views and close button
+     */
+    private void createViews() {
+        this.removeAllViews();
 
-		params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		LayoutParams paramsTexts = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        RelativeLayout texts_layout = new RelativeLayout(getContext());
 
-		if (screenY / 2 > showhintPoints.y) {
-			// textBlock under the highlight circle
-			paramsTexts.height = (showhintPoints.y + radius) - screenY;
-			paramsTexts.topMargin = (showhintPoints.y + radius);
-			texts_layout.setGravity(Gravity.START | Gravity.TOP);
+        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        /*
+         * Title
+         */
+        TextView textTitle = new TextView(getContext());
+        textTitle.setText(getTitle());
+        if (getTitle_color() != 0)
+            textTitle.setTextColor(getTitle_color());
+        else
+            textTitle.setTextColor(getResources().getColor(android.R.color.holo_blue_bright));
+        textTitle.setId(123);
+        textTitle.setTextSize(26);
 
-			texts_layout.setPadding(50, 50, 50, 50);
-		} else {
-			// textBlock above the highlight circle
-			paramsTexts.height = showhintPoints.y - radius;
+        // Add title to this view
+        texts_layout.addView(textTitle);
 
-			texts_layout.setGravity(Gravity.START | Gravity.BOTTOM);
+        /*
+         * Description
+         */
+        TextView text = new TextView(getContext());
+        text.setText(getDescription());
+        if (getDescription_color() != 0)
+            text.setTextColor(getDescription_color());
+        else
+            text.setTextColor(Color.WHITE);
+        text.setTextSize(17);
+        params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.BELOW, 123);
+        text.setLayoutParams(params);
 
-			texts_layout.setPadding(50, 100, 50, 50);
-		}
+        texts_layout.addView(text);
 
-		texts_layout.setLayoutParams(paramsTexts);
-		this.addView(texts_layout);
+        params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        LayoutParams paramsTexts = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 
-		/*
-		 * Close button
-		 */
-		Button btn_close = new Button(getContext());
-		btn_close.setId(4375);
-		btn_close.setText(getButtonText());
-		btn_close.setTextColor(buttonTextColor == 0 ? Color.WHITE : buttonTextColor);
+        if (screenY / 2 > showhintPoints.y) {
+            // textBlock under the highlight circle
+            paramsTexts.height = (showhintPoints.y + radius) - screenY;
+            paramsTexts.topMargin = (showhintPoints.y + radius);
+            texts_layout.setGravity(Gravity.START | Gravity.TOP);
 
-		if(closeButtonDrawableBG != null)
-		{
-			btn_close.setBackgroundDrawable(closeButtonDrawableBG);
-		}
+            texts_layout.setPadding(50, 50, 50, 50);
+        } else {
+            // textBlock above the highlight circle
+            paramsTexts.height = showhintPoints.y - radius;
 
-		if(buttonColor != 0){
-			btn_close.getBackground().setColorFilter(buttonColor, PorterDuff.Mode.MULTIPLY);
-		}
+            texts_layout.setGravity(Gravity.START | Gravity.BOTTOM);
 
-		btn_close.setTextSize(17);
-		btn_close.setGravity(Gravity.CENTER);
+            texts_layout.setPadding(50, 100, 50, 50);
+        }
 
-		params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        texts_layout.setLayoutParams(paramsTexts);
+        this.addView(texts_layout);
 
-		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-		params.rightMargin = 50;
-		params.bottomMargin = 100;
+        /*
+         * Close button
+         */
+        Button btn_close = new Button(getContext());
+        btn_close.setId(4375);
+        btn_close.setText(getButtonText());
+        btn_close.setTextColor(buttonTextColor == 0 ? Color.WHITE : buttonTextColor);
 
-		btn_close.setLayoutParams(params);
-		btn_close.setOnClickListener(new OnClickListener() {
+        if (closeButtonDrawableBG != null) {
+            btn_close.setBackgroundDrawable(closeButtonDrawableBG);
+        }
 
-			@Override
-			public void onClick(View v) {
-				if (getCallback() != null)
-					getCallback().gotItClicked();
+        if (buttonColor != 0) {
+            btn_close.getBackground().setColorFilter(buttonColor, PorterDuff.Mode.MULTIPLY);
+        }
 
-				setVisibility(View.GONE);
-				((ViewGroup) ((Activity) getContext()).getWindow().getDecorView())
-						.removeView(ShowTipsView.this);
+        btn_close.setTextSize(17);
+        btn_close.setGravity(Gravity.CENTER);
 
-			}
-		});
-		this.addView(btn_close);
+        params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-	}
-	
-	public void setButtonText(String text) {
-		this.button_text = text;
-	}
+        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        params.rightMargin = (int)getResources().getDimension(R.dimen.button_right_margin);
+        params.bottomMargin = (int)getResources().getDimension(R.dimen.button_bottom_margin);
 
-	public String getButtonText() {
-        if(button_text == null || button_text.equals(""))
+        btn_close.setLayoutParams(params);
+        btn_close.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (getCallback() != null)
+                    getCallback().gotItClicked();
+
+                setVisibility(View.GONE);
+                ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView())
+                        .removeView(ShowTipsView.this);
+
+            }
+        });
+        this.addView(btn_close);
+
+    }
+
+    public void setButtonText(String text) {
+        this.button_text = text;
+    }
+
+    public String getButtonText() {
+        if (button_text == null || button_text.equals(""))
             return "Got it";
 
-		return button_text;
-	}
+        return button_text;
+    }
 
-	public void setTarget(View v) {
-		targetView = v;
-	}
+    public void setTarget(View v) {
+        targetView = v;
+    }
 
-	public void setTarget(View v, int x, int y, int radius) {
-		custom = true;
-		targetView = v;
-		Point p = new Point(x, y);
-		showhintPoints = p;
-		this.radius = radius;
-	}
+    public void setTarget(View v, int x, int y, int radius) {
+        custom = true;
+        targetView = v;
+        Point p = new Point(x, y);
+        showhintPoints = p;
+        this.radius = radius;
+    }
 
-	static Point getShowcasePointFromView(View view) {
-		Point result = new Point();
-		result.x = view.getLeft() + view.getWidth() / 2;
-		result.y = view.getTop() + view.getHeight() / 2;
-		return result;
-	}
+    static Point getShowcasePointFromView(View view) {
+        Point result = new Point();
+        result.x = view.getLeft() + view.getWidth() / 2;
+        result.y = view.getTop() + view.getHeight() / 2;
+        return result;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public boolean isDisplayOneTime() {
-		return displayOneTime;
-	}
+    public boolean isDisplayOneTime() {
+        return displayOneTime;
+    }
 
-	public void setDisplayOneTime(boolean displayOneTime) {
-		this.displayOneTime = displayOneTime;
-	}
+    public void setDisplayOneTime(boolean displayOneTime) {
+        this.displayOneTime = displayOneTime;
+    }
 
-	public ShowTipsViewInterface getCallback() {
-		return callback;
-	}
+    public ShowTipsViewInterface getCallback() {
+        return callback;
+    }
 
-	public void setCallback(ShowTipsViewInterface callback) {
-		this.callback = callback;
-	}
+    public void setCallback(ShowTipsViewInterface callback) {
+        this.callback = callback;
+    }
 
-	public int getDelay() {
-		return delay;
-	}
+    public int getDelay() {
+        return delay;
+    }
 
-	public void setDelay(int delay) {
-		this.delay = delay;
-	}
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
 
-	public int getDisplayOneTimeID() {
-		return displayOneTimeID;
-	}
+    public int getDisplayOneTimeID() {
+        return displayOneTimeID;
+    }
 
-	public void setDisplayOneTimeID(int displayOneTimeID) {
-		this.displayOneTimeID = displayOneTimeID;
-	}
+    public void setDisplayOneTimeID(int displayOneTimeID) {
+        this.displayOneTimeID = displayOneTimeID;
+    }
 
-	public int getTitle_color() {
-		return title_color;
-	}
+    public int getTitle_color() {
+        return title_color;
+    }
 
-	public void setTitle_color(int title_color) {
-		this.title_color = title_color;
-	}
+    public void setTitle_color(int title_color) {
+        this.title_color = title_color;
+    }
 
-	public int getDescription_color() {
-		return description_color;
-	}
+    public int getDescription_color() {
+        return description_color;
+    }
 
-	public void setDescription_color(int description_color) {
-		this.description_color = description_color;
-	}
+    public void setDescription_color(int description_color) {
+        this.description_color = description_color;
+    }
 
-	public int getBackground_color() {
-		return background_color;
-	}
+    public int getBackground_color() {
+        return background_color;
+    }
 
-	public void setBackground_color(int background_color) {
-		this.background_color = background_color;
-	}
+    public void setBackground_color(int background_color) {
+        this.background_color = background_color;
+    }
 
-	public int getCircleColor() {
-		return circleColor;
-	}
+    public int getCircleColor() {
+        return circleColor;
+    }
 
-	public void setCircleColor(int circleColor) {
-		this.circleColor = circleColor;
-	}
+    public void setCircleColor(int circleColor) {
+        this.circleColor = circleColor;
+    }
 
-	public int getBackground_alpha() {
-		return background_alpha;
-	}
+    public int getBackground_alpha() {
+        return background_alpha;
+    }
 
-	public void setBackground_alpha(int background_alpha) {
-		if(background_alpha>255)
-			this.background_alpha = 255;
-		else if(background_alpha<0)
-			this.background_alpha = 0;
-		else
-			this.background_alpha = background_alpha;
+    public void setBackground_alpha(int background_alpha) {
+        if (background_alpha > 255)
+            this.background_alpha = 255;
+        else if (background_alpha < 0)
+            this.background_alpha = 0;
+        else
+            this.background_alpha = background_alpha;
 
-	}
+    }
 
-	public int getButtonColor() {
-		return buttonColor;
-	}
+    public int getButtonColor() {
+        return buttonColor;
+    }
 
-	public void setButtonColor(int buttonColor) {
-		this.buttonColor = buttonColor;
-	}
+    public void setButtonColor(int buttonColor) {
+        this.buttonColor = buttonColor;
+    }
 
-	public int getButtonTextColor() {
-		return buttonTextColor;
-	}
+    public int getButtonTextColor() {
+        return buttonTextColor;
+    }
 
-	public void setButtonTextColor(int buttonTextColor) {
-		this.buttonTextColor = buttonTextColor;
-	}
+    public void setButtonTextColor(int buttonTextColor) {
+        this.buttonTextColor = buttonTextColor;
+    }
 
-	public Drawable getCloseButtonDrawableBG() {
-		return closeButtonDrawableBG;
-	}
+    public Drawable getCloseButtonDrawableBG() {
+        return closeButtonDrawableBG;
+    }
 
-	public void setCloseButtonDrawableBG(Drawable closeButtonDrawableBG) {
-		this.closeButtonDrawableBG = closeButtonDrawableBG;
-	}
+    public void setCloseButtonDrawableBG(Drawable closeButtonDrawableBG) {
+        this.closeButtonDrawableBG = closeButtonDrawableBG;
+    }
 }
