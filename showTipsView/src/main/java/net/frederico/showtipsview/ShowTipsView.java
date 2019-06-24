@@ -33,6 +33,8 @@ public class ShowTipsView extends RelativeLayout {
     private Point showhintPoints;
     private int radius = 0;
 
+    public static final int TEXT_LAYOUT_ID = 98765;
+
     private String title, description, button_text;
     private boolean custom, displayOneTime;
     private int displayOneTimeID = 0;
@@ -231,6 +233,7 @@ public class ShowTipsView extends RelativeLayout {
         this.removeAllViews();
 
         RelativeLayout texts_layout = new RelativeLayout(getContext());
+        texts_layout.setId(TEXT_LAYOUT_ID);
 
         LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         /*
