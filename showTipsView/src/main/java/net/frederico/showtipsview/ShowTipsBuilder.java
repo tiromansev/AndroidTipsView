@@ -3,6 +3,7 @@ package net.frederico.showtipsview;
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 /**
  * @author Frederico Silva (fredericojssilva@gmail.com)
@@ -110,6 +111,11 @@ public class ShowTipsBuilder {
 	}
 	public ShowTipsBuilder setButtonBackground(Drawable drawable){
 		this.showtipsView.setCloseButtonDrawableBG(drawable);
+		return this;
+	}
+
+	public ShowTipsBuilder setButtonLayoutParams(RelativeLayout.LayoutParams layoutParams){
+		this.showtipsView.setButtonLayoutParams(layoutParams);
 		return this;
 	}
 

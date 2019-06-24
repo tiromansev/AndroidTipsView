@@ -58,9 +58,15 @@ public class ShowTipsView extends RelativeLayout {
     private Paint transparentPaint;
     private PorterDuffXfermode porterDuffXfermode;
 
+    private LayoutParams buttonLayoutParams;
+
     public ShowTipsView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+    }
+
+    public void setButtonLayoutParams(LayoutParams buttonLayoutParams) {
+        this.buttonLayoutParams = buttonLayoutParams;
     }
 
     public ShowTipsView(Context context, AttributeSet attrs) {
@@ -301,10 +307,15 @@ public class ShowTipsView extends RelativeLayout {
 
         params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        params.rightMargin = (int)getResources().getDimension(R.dimen.button_right_margin);
-        params.bottomMargin = (int)getResources().getDimension(R.dimen.button_bottom_margin);
+        if (buttonLayoutParams == null) {
+            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            params.rightMargin = (int) getResources().getDimension(R.dimen.button_right_margin);
+            params.bottomMargin = (int) getResources().getDimension(R.dimen.button_bottom_margin);
+        }
+        else {
+            params = buttonLayoutParams;
+        }
 
         btn_close.setLayoutParams(params);
         btn_close.setOnClickListener(new OnClickListener() {
