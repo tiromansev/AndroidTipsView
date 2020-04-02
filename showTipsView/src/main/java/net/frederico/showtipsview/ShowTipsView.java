@@ -361,6 +361,10 @@ public class ShowTipsView extends RelativeLayout {
         this.radius = radius;
     }
 
+    public void setRadius(int radius) {
+        this.radius = radius;
+    }
+
     static Point getShowcasePointFromView(View view) {
         Point result = new Point();
         result.x = view.getLeft() + view.getWidth() / 2;

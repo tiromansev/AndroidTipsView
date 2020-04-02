@@ -66,6 +66,11 @@ public class ShowTipsBuilder {
 		return this;
 	}
 
+	public ShowTipsBuilder setRadius(int radius) {
+		this.showtipsView.setRadius(radius);
+		return this;
+	}
+
 	public ShowTipsBuilder setCallback(ShowTipsViewInterface callback) {
 		this.showtipsView.setCallback(callback);
 		return this;
