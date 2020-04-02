@@ -36,7 +36,7 @@ public class ShowTipsView extends RelativeLayout {
     public static final int TEXT_LAYOUT_ID = 98765;
 
     private String title, description, button_text;
-    private boolean custom, displayOneTime;
+    private boolean custom, displayOneTime, customRadius;
     private int displayOneTimeID = 0;
     private int delay = 0;
 
@@ -202,7 +202,9 @@ public class ShowTipsView extends RelativeLayout {
                                 Point p = new Point(x, y);
 
                                 showhintPoints = p;
-                                radius = targetView.getWidth() / 2;
+                                if (!customRadius) {
+                                    radius = targetView.getWidth() / 2;
+                                }
                             } else {
                                 int[] location = new int[2];
                                 targetView.getLocationInWindow(location);
@@ -362,6 +364,7 @@ public class ShowTipsView extends RelativeLayout {
     }
 
     public void setRadius(int radius) {
+        customRadius = true;
         this.radius = radius;
     }
 

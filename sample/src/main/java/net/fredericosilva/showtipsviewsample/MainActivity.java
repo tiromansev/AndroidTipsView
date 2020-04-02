@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
                 .setBackgroundAlpha(128)
                 .setCloseButtonColor(Color.RED)
                 .setCloseButtonTextColor(Color.GREEN)
+                .setRadius(700)
                 .setButtonLayoutParams(params)
                 .build();
 
