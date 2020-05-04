@@ -140,6 +140,10 @@ public class ShowTipsView extends RelativeLayout {
         transparentPaint.setColor(getResources().getColor(android.R.color.transparent));
         transparentPaint.setXfermode(porterDuffXfermode);
 
+        if (showhintPoints == null) {
+            close();
+        }
+
         int x = showhintPoints.x;
         int y = showhintPoints.y;
         temp.drawCircle(x, y, radius, transparentPaint);
@@ -317,8 +321,7 @@ public class ShowTipsView extends RelativeLayout {
             params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             params.rightMargin = (int) getResources().getDimension(R.dimen.button_right_margin);
             params.bottomMargin = (int) getResources().getDimension(R.dimen.button_bottom_margin);
-        }
-        else {
+        } else {
             params = buttonLayoutParams;
         }
 
@@ -327,17 +330,20 @@ public class ShowTipsView extends RelativeLayout {
 
             @Override
             public void onClick(View v) {
-                if (getCallback() != null)
-                    getCallback().gotItClicked();
-
-                setVisibility(View.GONE);
-                ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView())
-                        .removeView(ShowTipsView.this);
-
+                close();
             }
         });
         this.addView(btn_close);
 
+    }
+
+    private void close() {
+        if (getCallback() != null)
+            getCallback().gotItClicked();
+
+        setVisibility(View.GONE);
+        ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView())
+                .removeView(ShowTipsView.this);
     }
 
     public void setButtonText(String text) {
