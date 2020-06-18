@@ -142,6 +142,7 @@ public class ShowTipsView extends RelativeLayout {
 
         if (showhintPoints == null) {
             close();
+            return;
         }
 
         int x = showhintPoints.x;
